@@ -1,0 +1,7 @@
+{
+  "hosting": {
+    "site": "mercadinho-do-mes",
+
+    "public": "public"
+  }
+}
