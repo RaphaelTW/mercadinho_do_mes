@@ -1,5 +1,4 @@
 <!doctype html>
-
 <html lang="pt-br" dir="ltr" data-bs-theme="light">
   <head>
     <meta charset="UTF-8" />
@@ -7,7 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
     <meta name="author" content="Raphael Laurentino" />
     <meta name="description" content="Aplicação para gerenciar compras mensais de supermercado." />
-    <meta name="keywords" content="supermercado, compras, mercado, lista de compras, controle de gastos" />
+    <meta
+      name="keywords"
+      content="supermercado, compras, mercado, lista de compras, controle de gastos"
+    />
     <meta name="robots" content="index, follow" />
 
     <title>Mercadinho do Mês</title>
@@ -22,39 +24,70 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
     />
     <!-- Favicon icon -->
-    <link rel="icon" type="image/png" href="src/img/favicon.ico">
-    <!-- Estilos personalizados -->
+    <link rel="icon" type="image/png" href="src/img/favicon.ico" />
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Estilos Reset -->
     <link rel="stylesheet" href="src/css/reset.css" />
+    <!-- Estilos personalizados -->
     <link rel="stylesheet" href="src/css/styles.css" />
   </head>
 
+  <body>
     <div class="container-lg py-3">
       <!-- Cabeçalho com título e botão de tema -->
       <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h3 mb-0"><img src="src/img/logo.png" alt="Logo do Mercadinho do Mês" class="me-2" width="100" height="100">Compras do Mês</h1>
+        <h1 class="h3 mb-0">
+          <img
+            src="src/img/logo.png"
+            alt="Logo do Mercadinho do Mês"
+            class="me-2"
+            width="100"
+            height="100"
+          />Compras do Mês
+        </h1>
         <button class="btn btn-outline-secondary" id="themeToggle" title="Alternar tema">
           <i class="bi bi-sun-fill"></i> <i class="bi bi-moon-fill"></i>
         </button>
       </div>
 
-      <!-- Formulário para adicionar novo item -->
+      <!-- Formulário para adicionar novo item (Simplificado) -->
       <div class="card shadow-sm mb-4">
         <div class="card-body">
           <div class="row g-2">
-            <div class="col-12 col-sm-8 col-md-9">
+            <div class="col-12 col-sm-9">
               <input
                 type="text"
                 class="form-control"
                 id="newItemName"
-                placeholder="Digite o nome do item..."
+                placeholder="Nome do item..."
               />
             </div>
-            <div class="col-12 col-sm-4 col-md-3">
+            <div class="col-12 col-sm-3">
               <button class="btn btn-primary w-100" id="addItemBtn">
                 <i class="bi bi-plus-circle me-1"></i>Adicionar
               </button>
             </div>
           </div>
+        </div>
+      </div>
+
+      <!-- Controles de pesquisa e ordenação -->
+      <div class="row g-2 mb-3">
+        <div class="col-12 col-sm-6">
+          <input
+            type="text"
+            class="form-control"
+            id="searchInput"
+            placeholder="Pesquisar itens..."
+          />
+        </div>
+        <div class="col-12 col-sm-6">
+          <select class="form-select" id="sortSelect">
+            <option value="default">Padrão (ordem de adição)</option>
+            <option value="boughtLast">Pegos por último</option>
+            <option value="alphabetical">Ordem alfabética</option>
+          </select>
         </div>
       </div>
 
@@ -70,7 +103,7 @@
         <!-- Card total sempre visível -->
         <div class="card-footer bg-transparent">
           <div class="d-flex justify-content-between align-items-center">
-            <span class="fw-bold">Total estimado:</span>
+            <span class="fw-bold">Total gasto:</span>
             <span class="h4 mb-0" id="totalAmount">R$ 0,00</span>
           </div>
         </div>
@@ -119,26 +152,55 @@
       </div>
     </div>
 
-    <!-- Seção: carregar CSV acessível (ex: /excel.csv) -->
-    <div class="container-lg py-3">
-      <div class="card shadow-sm mb-4">
-        <div class="card-body">
-          <h5 class="card-title">Carregar CSV do servidor (uso como banco)</h5>
-          <p class="card-text">
-            Se houver um arquivo `excel.csv` na raiz do site, clique para carregar e salvar em cache
-            (IndexedDB).
-          </p>
-          <div class="d-flex gap-2">
-            <button id="loadPathBtn" class="btn btn-outline-primary">Carregar /excel.csv</button>
-            <button id="clearCacheBtn" class="btn btn-outline-secondary">
-              Limpar cache (datasets)
+    <!-- Modal para confirmar compra do item -->
+    <div class="modal fade" id="confirmBoughtModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Informar Valor</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Fechar"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="boughtQuantity" class="form-label">Quantidade</label>
+              <input
+                type="number"
+                class="form-control"
+                id="boughtQuantity"
+                value="1"
+                min="0.01"
+                step="0.01"
+              />
+            </div>
+            <div class="mb-3">
+              <label for="pricePerUnit" class="form-label">Valor Unitário (R$)</label>
+              <input
+                type="number"
+                class="form-control"
+                id="pricePerUnit"
+                placeholder="0,00"
+                min="0"
+                step="0.01"
+              />
+            </div>
+            <input type="hidden" id="confirmItemId" />
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+              Cancelar
             </button>
+            <button type="button" class="btn btn-primary" id="confirmBoughtBtn">Confirmar</button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Modal para editar nome do item -->
+    <!-- Modal para editar item -->
     <div class="modal fade" id="editItemModal" tabindex="-1" aria-hidden="true">
       <div class="modal-dialog modal-sm">
         <div class="modal-content">
@@ -152,7 +214,12 @@
             ></button>
           </div>
           <div class="modal-body">
-            <input type="text" class="form-control" id="editItemName" placeholder="Novo nome" />
+            <input
+              type="text"
+              class="form-control mb-2"
+              id="editItemName"
+              placeholder="Novo nome"
+            />
             <input type="hidden" id="editItemId" />
           </div>
           <div class="modal-footer">

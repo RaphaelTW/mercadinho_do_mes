@@ -1,183 +1,157 @@
-# 🛒 Mercadinho do Mês
+# 🛒 Mercadinho do Mês - Sistema de Compras
 
-> Sistema web moderno para controle de compras mensais com histórico, exportação e suporte a CSV como base de dados.
+## 📋 Sobre o Projeto
 
----
+Sistema dinâmico e responsivo para gerenciar compras mensais de supermercado com controle de gastos, histórico e exportação para CSV/Excel.
 
-## 📌 Sobre o Projeto
+## ✨ Principais Melhorias
 
-O **Mercadinho do Mês** é uma aplicação web desenvolvida para organizar, controlar e acompanhar os gastos mensais com compras de supermercado.
+### 1. **Formulário Simplificado**
+- Usuário insere apenas o **nome do item**
+- Sem necessidade de preencher quantidade planejada ou unidade
+- Interface limpa e intuitiva
 
-O sistema permite:
+### 2. **Obrigatoriedade de Valor ao Marcar como Pego**
+- Ao marcar um item como "Pego", abre um **modal de confirmação**
+- Usuário **obrigatoriamente** preenche:
+  - **Quantidade** comprada
+  - **Valor unitário** (R$)
+- Soma automática: `quantidade × valor = total do item`
+- Se houver múltiplas compras do mesmo item, os valores são **somados automaticamente**
 
-* ✅ Adicionar e editar itens da lista
-* 🛍️ Marcar itens como comprados
-* 💰 Calcular total automaticamente
-* 📦 Arquivar meses anteriores
-* 📊 Visualizar média de gastos
-* 📁 Exportar histórico para CSV
-* 🌙 Alternar entre tema claro/escuro
-* 🗂️ Usar arquivo `excel.csv` como base de dados (cache via IndexedDB)
+### 3. **Visual Aprimorado**
+- Itens marcados como "Pego" ganham **fundo verde bem leve**
+- Transição suave entre estados
+- Tema claro/escuro totalmente suportado
+- Interface totalmente **responsiva** (mobile, tablet, desktop)
 
----
+### 4. **Exportação para Excel Melhorada**
+- CSV exportado com **table-hover** nativo do Excel
+- Formatação adequada para visualização em planilhas
+- Inclui média geral de gastos
+- Datas formatadas em português
 
-## 🚀 Tecnologias Utilizadas
+### 5. **Tecnologias Utilizadas**
+- **HTML5** semântico
+- **CSS3** com variáveis CSS e temas
+- **Bootstrap 5.3** para responsividade
+- **JavaScript Vanilla** (sem dependências externas)
+- **SweetAlert2** para confirmações elegantes
+- **LocalStorage** para persistência de dados
 
-* **HTML5**
-* **CSS3**
-* **Bootstrap 5**
-* **Bootstrap Icons**
-* **JavaScript (Vanilla JS)**
-* **LocalStorage**
-* **IndexedDB**
-* **PapaParse (leitura de CSV)**
+## 🚀 Como Usar
 
----
+### Adicionar Item
+1. Digite o nome do item no campo de entrada
+2. Clique em "Adicionar" ou pressione Enter
+3. O item aparece na lista como "não pego"
 
-## 🎯 Funcionalidades
+### Marcar Item como Pego
+1. Clique no checkbox "Pego" ao lado do item
+2. Um modal abrirá solicitando:
+   - **Quantidade**: quantidade comprada
+   - **Valor Unitário**: preço por unidade
+3. Clique em "Confirmar"
+4. O item ficará com fundo verde claro e mostrará o total
 
-### 🛒 Lista de Compras
+### Editar Item
+1. Clique no ícone de lápis ao lado do item
+2. Altere o nome
+3. Clique em "Salvar"
 
-* Adição rápida de itens
-* Edição via modal
-* Exclusão com confirmação
-* Campo de preço habilitado apenas quando marcado como “Pego”
-* Total atualizado em tempo real
+### Excluir Item
+1. Clique no ícone de lixeira
+2. Confirme a exclusão
 
-### 📅 Histórico Mensal
+### Pesquisar e Ordenar
+- **Pesquisa**: Digite no campo "Pesquisar itens..."
+- **Ordenação**:
+  - Padrão (ordem de adição)
+  - Pegos por último (não pegos primeiro, depois pegos)
+  - Ordem alfabética
 
-* Arquivamento do mês atual
-* Visualização organizada por mês/ano
-* Cálculo automático da média geral
-* Exclusão de registros
-* Exportação para CSV
+### Arquivar Mês
+1. Clique em "Arquivar mês e começar novo"
+2. O total será adicionado ao histórico
+3. Um novo mês será iniciado
 
-### 📂 Integração com CSV
+### Exportar Histórico
+1. Clique em "Exportar para CSV" na seção de histórico
+2. Um arquivo será baixado com todos os meses arquivados
+3. Abra no Excel com table-hover nativo
 
-* Carregamento automático de `/excel.csv`
-* Armazenamento em cache via IndexedDB
-* Limpeza manual de datasets
+## 📊 Estrutura de Dados
 
----
-
-## 📦 Estrutura do Projeto
-
-```
-mercadinho_do_mes/
-│
-├── index.html
-├── README.md
-└── (opcional) excel.csv
-```
-
----
-
-## ⚙️ Como Usar
-
-### 1️⃣ Executar Localmente
-
-Basta abrir o `index.html` no navegador.
-
-Ou utilize um servidor local:
-
-```bash
-# Exemplo com VSCode Live Server
-Clique com botão direito → Open with Live Server
-```
-
----
-
-### 2️⃣ Usar CSV como Banco
-
-Coloque um arquivo chamado:
-
-```
-excel.csv
-```
-
-na raiz do projeto e clique em:
-
-```
-Carregar /excel.csv
+### Item
+```javascript
+{
+  id: "unique-id",
+  name: "Nome do Item",
+  bought: false,
+  boughtQuantity: 0,
+  pricePerUnit: 0,
+  createdAt: timestamp,
+  boughtAt: null
+}
 ```
 
-O sistema fará cache automático no navegador.
-
----
-
-## 💾 Persistência de Dados
-
-O sistema utiliza:
-
-* **LocalStorage** → Dados do mês atual e histórico
-* **IndexedDB** → Armazenamento de datasets CSV
-
-Os dados permanecem salvos mesmo após fechar o navegador.
-
----
-
-## 📊 Exportação
-
-O histórico pode ser exportado em formato:
-
-```
-historico_compras.csv
+### Mês Atual
+```javascript
+{
+  year: 2026,
+  month: 2,
+  items: [...]
+}
 ```
 
-Compatível com:
+### Histórico
+```javascript
+[
+  { year: 2025, month: 3, total: 450.75 },
+  { year: 2025, month: 4, total: 620.30 }
+]
+```
 
-* Excel
-* LibreOffice
-* Google Sheets
+## 🎨 Customização
 
----
+### Cores
+Edite `/src/css/styles.css` para alterar as cores:
+```css
+:root {
+  --item-row-bought-light: rgba(40, 167, 69, 0.08);
+  --item-row-bought-dark: rgba(40, 167, 69, 0.15);
+}
+```
 
-## 🌗 Tema Claro / Escuro
+### Temas
+O sistema suporta tema claro e escuro automaticamente via Bootstrap
 
-O botão no topo da interface permite alternar dinamicamente entre:
+## 📱 Responsividade
 
-* ☀️ Light Mode
-* 🌙 Dark Mode
+- ✅ Mobile (até 576px)
+- ✅ Tablet (576px - 992px)
+- ✅ Desktop (acima de 992px)
 
----
+## 💾 Armazenamento
 
-## 🔐 Segurança
+Todos os dados são salvos em **LocalStorage** do navegador:
+- `shoppingCurrentMonth`: dados do mês atual
+- `shoppingHistory`: histórico de meses anteriores
 
-* Nenhum dado é enviado para servidores externos
-* Todo armazenamento é local no navegador
-* Não depende de backend
+## 🔧 Instalação
 
----
+1. Extraia os arquivos
+2. Abra `index.html` em um navegador moderno
+3. Comece a usar!
 
-## 📈 Melhorias Futuras (Roadmap)
+Não requer servidor ou instalação de dependências.
 
-* [ ] Filtro por categoria
-* [ ] Dashboard com gráficos
-* [ ] Controle por usuário
-* [ ] Integração com API de preços
-* [ ] PWA (instalável como app)
+## 📝 Notas
 
----
-
-## 🧠 Objetivo do Projeto
-
-Criar uma solução simples, rápida e eficiente para controle de gastos mensais domésticos, utilizando apenas tecnologias front-end modernas.
-
----
-
-## 👨‍💻 Autor
-
-Desenvolvido por **Raphael**
-Projeto pessoal para organização e controle financeiro doméstico.
-
----
-
-## 📜 Licença
-
-Este projeto é livre para uso pessoal e educacional.
+- Os dados são persistidos localmente no navegador
+- Limpar o cache do navegador apagará todos os dados
+- Compatível com navegadores modernos (Chrome, Firefox, Safari, Edge)
 
 ---
 
-# ⭐ Mercadinho do Mês
-
-Organize. Controle. Economize.
+**Desenvolvido com ❤️ para facilitar o controle de compras mensais**
